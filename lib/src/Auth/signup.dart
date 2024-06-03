@@ -268,7 +268,7 @@ class _signupState extends State<signup> {
             fillColor: Color(0xfff3f3f4),
             filled: true,
           ),
-          hint: Text('Select a treatment'),
+          hint: Text('Select a role'),
           items: treatments.map((treatment) {
             return DropdownMenuItem(
               value: treatment,
@@ -282,7 +282,7 @@ class _signupState extends State<signup> {
           },
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please choose a treatment';
+              return 'Please choose a role';
             }
             return null;
           },

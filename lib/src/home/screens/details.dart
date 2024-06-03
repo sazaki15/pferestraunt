@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pfe2024/src/home/screens/checkout.dart';
 import 'package:pfe2024/src/home/screens/notifications.dart';
 import 'package:pfe2024/src/home/screens/profile.dart';
 import 'package:pfe2024/src/home/util/comments.dart';
@@ -34,7 +35,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           IconButton(
             icon: IconBadge(
               key: Key('1 as String'),
-              icon: Icons.notifications,
+              icon: Icons.person,
               size: 22.0,
             ),
             onPressed: (){
@@ -259,11 +260,19 @@ class _ProductDetailsState extends State<ProductDetails> {
           child: Text(
             "ADD TO CART",
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black,
             ),
           ),
           
-          onPressed: (){},
+          onPressed: (){
+            Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (BuildContext context){
+              return Checkout();
+            },
+          ),
+        );
+          },
         ),
       ),
     );

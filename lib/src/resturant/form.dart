@@ -42,14 +42,14 @@ class _AppointmentPageState extends State<AppointmentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add an Appointment')),
+      appBar: AppBar(title: Text('Add Your restaurant')),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             children: <Widget>[
-              _buildTextField('Hotel', _hotel, (value) {
+              _buildTextField('Restaurant Name', _hotel, (value) {
                 _hotel = value;
               }, TextInputType.text),
               SizedBox(height: 16),

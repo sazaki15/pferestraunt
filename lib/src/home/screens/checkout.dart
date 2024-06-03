@@ -199,38 +199,7 @@ class _CheckoutState extends State<Checkout> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
 
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(10,5,5,5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          "Total",
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-
-                        Text(
-                          r"$ 212",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-
-                        Text(
-                          "Delivery charges included",
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  
 
                   Container(
                     padding: EdgeInsets.fromLTRB(5,5,10,5),
@@ -241,7 +210,7 @@ class _CheckoutState extends State<Checkout> {
                       child: Text(
                         "Place Order".toUpperCase(),
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                         ),
                       ),
                       onPressed: (){},

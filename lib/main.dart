@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
+import 'package:pfe2024/src/Auth/authenticate.dart';
 import 'package:pfe2024/src/home/home.dart';
 
 
@@ -47,7 +48,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: Start(),
+      home: Auth(),
       debugShowCheckedModeBanner: false,
     );
   }
