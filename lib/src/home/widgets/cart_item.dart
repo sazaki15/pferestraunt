@@ -26,13 +26,13 @@ class CartItem extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(0, 4, 0, 4),
       child: InkWell(
         onTap: (){
-          Navigator.of(context).push(
+        /*  Navigator.of(context).push(
             MaterialPageRoute(
               builder: (BuildContext context){
                 return ProductDetails();
               },
             ),
-          );
+          );*/
         },
         child: Row(
           children: <Widget>[

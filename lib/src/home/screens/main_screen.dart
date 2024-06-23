@@ -58,9 +58,9 @@ class _MainScreenState extends State<MainScreen> {
           onPageChanged: onPageChanged,
           children: <Widget>[
             Home(),
-            FavoriteScreen(),
+            
             SearchScreen(),
-            CartScreen(),
+            
             Profile(),
           ],
         ),

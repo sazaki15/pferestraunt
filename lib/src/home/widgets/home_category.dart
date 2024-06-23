@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:pfe2024/src/home/screens/categories_screen.dart';
 
 class HomeCategory extends StatelessWidget {
@@ -78,3 +78,4 @@ class HomeCategory extends StatelessWidget {
     );
   }
 }
+*/

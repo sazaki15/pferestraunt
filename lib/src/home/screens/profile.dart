@@ -1,9 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
-
-
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pfe2024/src/home/screens/text_widget.dart';
 
@@ -16,7 +13,6 @@ class Profile extends StatefulWidget {
 
 class _EditProfilePageState extends State<Profile> {
   final currentuser = FirebaseAuth.instance.currentUser;
-
   final auth = FirebaseAuth.instance;
 
   Future<void> changeEmail() async {
@@ -117,7 +113,7 @@ class _EditProfilePageState extends State<Profile> {
           ),
           TextButton(
             onPressed: () async {
-              if (!value.isEmpty) {
+              if (value.isNotEmpty) {
                 await FirebaseFirestore.instance
                     .collection('users')
                     .doc(currentuser!.uid)
@@ -151,7 +147,6 @@ class _EditProfilePageState extends State<Profile> {
             if (phone.isValidNumber()) {
               value = phone.completeNumber;
             }
-            
           },
         ),
         actions: [
@@ -163,7 +158,7 @@ class _EditProfilePageState extends State<Profile> {
           ),
           TextButton(
             onPressed: () async {
-              if (!value.isEmpty) {
+              if (value.isNotEmpty) {
                 await FirebaseFirestore.instance
                     .collection('users')
                     .doc(currentuser!.uid)
@@ -174,7 +169,7 @@ class _EditProfilePageState extends State<Profile> {
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Please a valid phone number'),
+                    content: Text('Please enter a valid phone number'),
                   ),
                 );
               }
@@ -189,74 +184,80 @@ class _EditProfilePageState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentuser!.uid)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final data = snapshot.data!.data() as Map<String, dynamic>;
-          return Padding(
-            padding: EdgeInsets.only(top: 120),
-            child: ListView(
-              padding: EdgeInsets.symmetric(horizontal: 32),
-              physics: BouncingScrollPhysics(),
-              children: [
-                Icon(
-                  Icons.person,
-                  size: 100,
-                  color: Colors.blue[900],
-                ),
-                const SizedBox(height: 24),
-                TextFieldWidget(
-                  label: 'Name',
-                  text: data['name'],
-                  onPressed: () {
-                    editField('name');
-                  },
-                ),
-                const SizedBox(height: 24),
-                TextFieldWidget(
-                  label: 'Email',
-                  text: data['email'],
-                  onPressed: () {
-                    changeEmail();
-                  },
-                ),
-                const SizedBox(height: 24),
-                TextFieldWidget(
-                  label: 'phone',
-                  text: data['phone'],
-                  onPressed: () {
-                    editphone();
-                  },
-                ),
-                const SizedBox(height: 24),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () async {
-                    await FirebaseAuth.instance.signOut();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[900],
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(32),
-                    ),
+      appBar: AppBar(
+        title: Text('Profile'),
+        backgroundColor: Color(0xFF0D47A1),
+        centerTitle: true,
+        foregroundColor: Colors.white,
+      ),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentuser!.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final data = snapshot.data!.data() as Map<String, dynamic>;
+            return Padding(
+              padding: EdgeInsets.only(top: 20),
+              child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: 32),
+                physics: BouncingScrollPhysics(),
+                children: [
+                  Icon(
+                    Icons.person,
+                    size: 100,
+                    color: Colors.blue[900],
                   ),
-                  child: Text('Logout'),
-                ),
-              ],
-            ),
+                  const SizedBox(height: 24),
+                  TextFieldWidget(
+                    label: 'Name',
+                    text: data['name'],
+                    onPressed: () {
+                      editField('name');
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  TextFieldWidget(
+                    label: 'Email',
+                    text: data['email'],
+                    onPressed: () {
+                      changeEmail();
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  TextFieldWidget(
+                    label: 'Phone',
+                    text: data['phone'],
+                    onPressed: () {
+                      editphone();
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await FirebaseAuth.instance.signOut();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[900],
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(32),
+                      ),
+                    ),
+                    child: Text('Logout'),
+                  ),
+                ],
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+          return Center(
+            child: CircularProgressIndicator(),
           );
-        } else if (snapshot.hasError) {
-          return Text('Something went wrong');
-        }
-        return Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    ));
+        },
+      ),
+    );
   }
 }

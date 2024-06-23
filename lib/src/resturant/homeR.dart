@@ -2,18 +2,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pfe2024/src/resturant/form.dart';
+import 'package:pfe2024/src/resturant/reservation.dart';
 
-import 'package:pfe2024/src/resturant/result.dart';
+
 
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pfe2024/src/resturant/show_info.dart';
 
 
 
 class MyHomeResto extends StatelessWidget {
    var collection = FirebaseFirestore.instance.collection("users");
   
-  final id = FirebaseAuth.instance.currentUser!.uid;
+   static final id = FirebaseAuth.instance.currentUser!.uid;
 
   Future<bool> isClientAdminG(String uid) async {
     DocumentSnapshot clientDoc = await collection.doc(uid).get();
@@ -98,26 +100,55 @@ class MyHomeResto extends StatelessWidget {
     );
   }
 }
+Future<bool> hasSubmittedForm(String userId) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('restaurants')
+        .doc(userId)
+        
+        .get();
+    return snapshot.exists;
+  }
+  Future<Widget> getPage(String userId) async {
+  bool hasSubmitted = await hasSubmittedForm(userId);
+  if (hasSubmitted) {
+  
+    return show_info(key: Key(userId),  id: userId,);
+  } else {
+    return RestaurantForm(operation: '');
+  }
+}
+Future<Widget> getReservetion(String userId) async {
+  
+  
+  
+    return ReservationPage(restaurantId:userId);
+   
+}
 
 class ServiceCard extends StatelessWidget {
   
   final int index;
-  final List<Map<String, dynamic>> services = [
-    {'Consultation': 'Add your Resturant' , 'icon' : FontAwesomeIcons.plus , 'page':AppointmentPage(id: '') },
-    
-    {'Consultation': 'Appointments' , 'icon' : FontAwesomeIcons.calendar , 'page': 
-    ''},
-    
   
-   
-  ];
+
+  
+  
 
   ServiceCard({required this.index});
 
  
+  
 
   @override
   Widget build(BuildContext context) {
+     List<Map<String, dynamic>> services = [
+    {'Consultation': 'Add your Resturant' , 'icon' : FontAwesomeIcons.plus , 'page':   getPage(MyHomeResto.id) },
+    
+    {'Consultation': 'Appointments' , 'icon' : FontAwesomeIcons.calendar , 'page' : getReservetion(MyHomeResto.id)
+    },
+    
+  
+   
+  ];
     return Card(
       elevation: services.length.toDouble(),
       shadowColor: Colors.blue.shade900,
@@ -128,10 +159,31 @@ class ServiceCard extends StatelessWidget {
       child: InkWell(
         onTap: () {
           // Action quand le cadre est cliqué
-          
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => services[index]['page']),
-          );
+          services = [
+    {'Consultation': 'Add your Resturant' , 'icon' : FontAwesomeIcons.plus , 'page':   getPage(MyHomeResto.id) },
+    
+    {'Consultation': 'Appointments' , 'icon' : FontAwesomeIcons.calendar , 'page':  getReservetion(MyHomeResto.id)
+    },
+    
+  
+   
+  ];
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+            return FutureBuilder<Widget>(
+              future: services[index]['page'],
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else {
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else {
+                    return snapshot.data ?? SizedBox(); // Return the widget or an empty SizedBox if null
+                  }
+                }
+              },
+            );
+          }));
         },
         child: Padding(
           padding: const EdgeInsets.all(16.0),

@@ -1,165 +1,178 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:pfe2024/src/home/screens/dishes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pfe2024/src/home/screens/profile.dart';
+import 'package:pfe2024/src/home/screens/reservepage.dart';
 import 'package:pfe2024/src/home/widgets/grid_product.dart';
-import 'package:pfe2024/src/home/widgets/home_category.dart';
-import 'package:pfe2024/src/home/widgets/slider_item.dart';
-import 'package:pfe2024/src/home/util/foods.dart';
-import 'package:pfe2024/src/home/util/categories.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-
 
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home>{
-
-  List<T> map<T>(List list, Function handler) {
-    List<T> result = [];
-    for (var i = 0; i < list.length; i++) {
-      result.add(handler(i, list[i]));
-    }
-
-    return result;
-  }
-
-  int _current = 0;
-
+class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String searchQuery = "";
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-
-      body: Padding(
-        padding: EdgeInsets.fromLTRB(10.0,0,10.0,0),
-        child: ListView(
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  "Foody",
-                  style: TextStyle(
-                    fontSize: 23,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-
-                ElevatedButton(
-                  child: Text(
-                    "Profile",
-                    style: TextStyle(
-//                      fontSize: 22,
-//                      fontWeight: FontWeight.w800,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                  ),
-                  onPressed: (){
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (BuildContext context){
-                          return Profile();
-                        },
-                      ),
-                    );
+      appBar: AppBar(
+        title: Text(
+          "Foody",
+          style: TextStyle(
+            fontSize: 23,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Color(0xFF0D47A1),
+        actions: [
+          
+          IconButton(
+            icon: Icon(Icons.person, color: Colors.white),
+            
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (BuildContext context) {
+                    return Profile();
                   },
                 ),
-              ],
-            ),
-
-            SizedBox(height: 10.0),
-
-            //Slider Here
-
+              );
+            },
+          ),
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           
-            SizedBox(height: 20.0),
-
-            Text(
-              "Restraunat Categories",
-              style: TextStyle(
-                fontSize: 23,
-                fontWeight: FontWeight.w800,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xFF0D47A1),
+              ),
+              child: Text(
+                'Foody Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.book),
+              title: Text('My Reservations'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (BuildContext context) {
+                      return ReservationsPage();
+                    },
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Profile'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (BuildContext context) {
+                      return Profile();
+                    },
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                
+              },
+            ),
+          ],
+        ),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(10.0),
+        child: Column(
+          children: <Widget>[
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase();
+                });
+              },
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.search),
+                hintText: "Search for restaurants...",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
             SizedBox(height: 10.0),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('restaurants')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                  }
 
-            Container(
-              height: 65.0,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                shrinkWrap: true,
-                itemCount: categories == null?0:categories.length,
-                itemBuilder: (BuildContext context, int index) {
-                  Map cat = categories[index];
-                  return HomeCategory(
-                    icon: cat['icon'],
-                    title: cat['name'],
-                    items: cat['items'].toString(),
-                    isHome: true, 
+                  List<Map<String, dynamic>> foods = snapshot.data!.docs
+                      .map((doc) => doc.data() as Map<String, dynamic>)
+                      .where((food) => food['name']
+                          .toString()
+                          .toLowerCase()
+                          .contains(searchQuery))
+                      .toList();
+
+                  return GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: MediaQuery.of(context).size.width /
+                          (MediaQuery.of(context).size.height / 1.25),
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                    ),
+                    itemCount: foods.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      Map food = foods[index];
+                      return GridProduct(
+                        id: food['id'],
+                        img: food['images'][0]['url'],
+                        isFav: false,
+                        name: food['name'],
+                        rating: 5.0,
+                        raters: 23,
+                        cuisine: food['cuisine'],
+                        hours: food['hours'],
+                        phone: food['phone'],
+                        website: food['website'],
+                        description: food['operation'],
+                        key: Key(food['id'].toString()),
+                      );
+                    },
                   );
                 },
               ),
             ),
-
-            SizedBox(height: 20.0),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  "Popular Items",
-                  style: TextStyle(
-                    fontSize: 23,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-
-                ElevatedButton(
-                  child: Text(
-                    "View More",
-                    style: TextStyle(
-//                      fontSize: 22,
-//                      fontWeight: FontWeight.w800,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                  ),
-                  onPressed: (){
-                    
-                  },
-                ),
-              ],
-            ),
-            SizedBox(height: 10.0),
-
-            GridView.builder(
-              shrinkWrap: true,
-              primary: false,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: MediaQuery.of(context).size.width /
-                    (MediaQuery.of(context).size.height / 1.25),
-              ),
-              itemCount: foods == null ? 0 :foods.length,
-              itemBuilder: (BuildContext context, int index) {
-//                Food food = Food.fromJson(foods[index]);
-                Map food = foods[index];
-//                print(foods);
-//                print(foods.length);
-                return GridProduct(
-                  img: food['img'],
-                  isFav: false,
-                  name: food['name'],
-                  rating: 5.0,
-                  raters: 23, key: Key('1 as String'),
-                );
-              },
-            ),
-
-            SizedBox(height: 30),
           ],
         ),
       ),

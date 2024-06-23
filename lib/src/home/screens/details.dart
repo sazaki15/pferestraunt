@@ -9,17 +9,46 @@ import 'package:pfe2024/src/home/widgets/badge.dart';
 import 'package:pfe2024/src/home/widgets/smooth_star_rating.dart';
 
 class ProductDetails extends StatefulWidget {
+  final String id;
+  final String name;
+  final String img;
+  final bool isFav;
+  final double rating;
+  final int raters;
+  final String cuisine;
+  final String hours;
+  final String phone;
+  final String website;
+  final String description;
+
+  ProductDetails({
+    required this.id,
+    required this.name,
+    required this.img,
+    required this.isFav,
+    required this.rating,
+    required this.raters,
+    required this.cuisine,
+    required this.hours,
+    required this.phone,
+    required this.website,
+    required this.description,
+  });
+
   @override
   _ProductDetailsState createState() => _ProductDetailsState();
 }
 
 class _ProductDetailsState extends State<ProductDetails> {
   bool isFav = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        backgroundColor: Color(0xFF0D47A1),
+        foregroundColor: Colors.white,
         leading: IconButton(
           icon: Icon(
             Icons.keyboard_backspace,
@@ -31,24 +60,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           "Item Details",
         ),
         elevation: 0.0,
-        actions: <Widget>[
-          IconButton(
-            icon: IconBadge(
-              key: Key('1 as String'),
-              icon: Icons.person,
-              size: 22.0,
-            ),
-            onPressed: (){
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (BuildContext context){
-                    return Profile();
-                  },
-                ),
-              );
-            },
-          ),
-        ],
+        
       ),
 
       body: Padding(
@@ -63,10 +75,24 @@ class _ProductDetailsState extends State<ProductDetails> {
                   width: MediaQuery.of(context).size.width,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8.0),
-                    child: Image.asset(
-                      "${foods[1]['img']}",
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image.network(
+                    widget.img, // Use Image.network for URL
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Center(child: Icon(Icons.error));
+                    },
+                  ),
                   ),
                 ),
 
@@ -96,7 +122,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             SizedBox(height: 10.0),
 
             Text(
-              "${foods[1]['name']}",
+              "${widget.name}",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -134,7 +160,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               child: Row(
                 children: <Widget>[
                   Text(
-                    "20 Pieces",
+                    "Cuisine: ",
                     style: TextStyle(
                       fontSize: 11.0,
                       fontWeight: FontWeight.w300,
@@ -143,11 +169,36 @@ class _ProductDetailsState extends State<ProductDetails> {
                   SizedBox(width: 10.0),
 
                   Text(
-                    r"$90",
+                    "${widget.cuisine}",
                     style: TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.w900,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Color(0xFF0D47A1)
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
+              Padding(
+              padding: EdgeInsets.only(bottom: 5.0, top: 2.0),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    "Work time: ",
+                    style: TextStyle(
+                      fontSize: 11.0,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  SizedBox(width: 10.0),
+
+                  Text(
+                    "${widget.hours}",
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF0D47A1),
                     ),
                   ),
 
@@ -170,17 +221,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             SizedBox(height: 10.0),
 
             Text(
-              "Nulla quis lorem ut libero malesuada feugiat. Lorem ipsum dolor "
-                  "sit amet, consectetur adipiscing elit. Curabitur aliquet quam "
-                  "id dui posuere blandit. Pellentesque in ipsum id orci porta "
-                  "dapibus. Vestibulum ante ipsum primis in faucibus orci luctus "
-                  "et ultrices posuere cubilia Curae; Donec velit neque, auctor "
-                  "sit amet aliquam vel, ullamcorper sit amet ligula. Donec"
-                  " rutrum congue leo eget malesuada. Vivamus magna justo,"
-                  " lacinia eget consectetur sed, convallis at tellus."
-                  " Vivamus suscipit tortor eget felis porttitor volutpat."
-                  " Donec rutrum congue leo eget malesuada."
-                  " Pellentesque in ipsum id orci porta dapibus.",
+              "${widget.description}",
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w300,
@@ -257,10 +298,15 @@ class _ProductDetailsState extends State<ProductDetails> {
       bottomNavigationBar: Container(
         height: 50.0,
         child: ElevatedButton(
+           style: ButtonStyle(
+      backgroundColor: MaterialStateProperty.all(Color(0xFF0D47A1)),
+      
+    ),
+    
           child: Text(
-            "ADD TO CART",
+            "Reserve Now",
             style: TextStyle(
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
           
@@ -268,7 +314,19 @@ class _ProductDetailsState extends State<ProductDetails> {
             Navigator.of(context).push(
           MaterialPageRoute(
             builder: (BuildContext context){
-              return Checkout();
+              return Checkout(
+                id: widget.id,
+                name: widget.name,
+                img: widget.img,
+                isFav: widget.isFav,
+                rating: widget.rating,
+                raters: widget.raters,
+                cuisine: widget.cuisine,
+                hours: widget.hours,
+                phone: widget.phone,
+                website: widget.website,
+                description: widget.description,
+              );
             },
           ),
         );
